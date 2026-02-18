@@ -17,7 +17,15 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+private slots:
+    void on_treeView_doubleClicked(const QModelIndex &index);
+
+    void on_treeView_clicked(const QModelIndex &index);
+
+    void onTreeContextMenu(const QPoint &pos);
+
 private:
     Ui::MainWindow *ui;
+    void openDirectory(const QString &path);
 };
 #endif // MAINWINDOW_H
