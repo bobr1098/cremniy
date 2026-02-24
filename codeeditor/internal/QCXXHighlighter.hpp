@@ -39,4 +39,3 @@ private:
     QRegularExpression m_commentStartPattern;
     QRegularExpression m_commentEndPattern;
 };
-

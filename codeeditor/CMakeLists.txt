@@ -15,15 +15,15 @@ set(SRC
     QCXXHighlighter.cpp
     QSyntaxStyle.cpp
     QStyleSyntaxHighlighter.cpp
-    QGLSLCompleter.cpp
-    QGLSLHighlighter.cpp
+
+
     QLanguage.cpp
-    QXMLHighlighter.cpp
+
     QJSONHighlighter.cpp
-    QLuaCompleter.cpp
-    QLuaHighlighter.cpp
+
+
     QPythonCompleter.cpp
-    QPythonHighlighter.cpp
+
     QFramedTextAttribute.cpp
 )
 
@@ -34,15 +34,15 @@ set(HDR
     internal/QSyntaxStyle.hpp
     internal/QStyleSyntaxHighlighter.hpp
     internal/QCXXHighlighter.hpp
-    internal/QGLSLCompleter.hpp
-    internal/QGLSLHighlighter.hpp
+
+
     internal/QLanguage.hpp
-    internal/QXMLHighlighter.hpp
+
     internal/QJSONHighlighter.hpp
-    internal/QLuaCompleter.hpp
-    internal/QLuaHighlighter.hpp
+
+
     internal/QPythonCompleter.hpp
-    internal/QPythonHighlighter.hpp
+
     internal/QFramedTextAttribute.hpp
 )
 

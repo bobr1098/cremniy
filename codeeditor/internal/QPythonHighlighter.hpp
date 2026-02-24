@@ -38,4 +38,3 @@ private:
     QRegularExpression m_functionPattern;
     QRegularExpression m_defTypePattern;
 };
-
