@@ -15,7 +15,9 @@ public:
 
     void setBuffer(QByteArray buffer);
     void syncBuffer();
-    QByteArray getBuffer();
+    QByteArray* getBuffer();
+
+    bool getModified();
 
 private:
 
@@ -23,6 +25,8 @@ private:
     QHexView* m_hexview;
 
     QByteArray m_buffer;
+
+    bool is_mod = false;
 
 };
 

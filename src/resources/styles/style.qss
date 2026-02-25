@@ -58,7 +58,7 @@ QLineEdit, QTextEdit, QPlainTextEdit {
     padding: 2px;
 }
 
-QTextEdit {
+QPlainTextEdit {
     background-color: #1f1f1f;
 }
 
@@ -80,12 +80,12 @@ QTabWidget::pane {
 }
 
 #filesTabWidget QTabBar::close-button {
-    image: url(:/close.png);
+    image: url(:/icons/close.png);
     subcontrol-position: right;
 }
 
 #filesTabWidget QTabBar::close-button:hover {
-    image: url(:/close.png);
+    image: url(:/icons/close.png);
 }
 
 #filesTabWidget QTabBar::tab {

@@ -13,7 +13,7 @@ class QFramedTextAttribute;
 /**
  * @brief Class, that describes code editor.
  */
-class QCodeEditor : public QTextEdit
+class QCodeEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
@@ -33,8 +33,6 @@ public:
      * index.
      * @return Index.
      */
-
-
 
     int getFirstVisibleBlock();
 
@@ -150,6 +148,8 @@ public Q_SLOTS:
      */
     void onSelectionChanged();
 
+
+
 protected:
     /**
      * @brief Method, that's called on any text insertion of
@@ -188,6 +188,8 @@ protected:
      * completer.
      */
     void focusInEvent(QFocusEvent *e) override;
+
+
 
 private:
 

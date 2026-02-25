@@ -1,7 +1,8 @@
-#ifndef TOOLTAB_H
-#define TOOLTAB_H
+#ifndef TOOLTABWIDGET_H
+#define TOOLTABWIDGET_H
 
 #include "filetab.h"
+#include "utils/syncfiledata.h"
 #include <QTabWidget>
 
 class QVBoxLayout;
@@ -20,6 +21,7 @@ public:
     ToolTab(FileTab *fwparent, QString path);
 
     QCodeEditor* get_codeEditor();
+    SyncFileData* m_syncfiledata;
 
 private:
 
@@ -32,4 +34,4 @@ private:
     QMap<QString, QSyntaxStyle*> m_styles;
 };
 
-#endif // TOOLTAB_H
+#endif // TOOLTABWIDGET_H

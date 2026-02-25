@@ -29,7 +29,7 @@ static QVector<QPair<QString, QString>> parentheses = {
 };
 
 QCodeEditor::QCodeEditor(QWidget* widget) :
-    QTextEdit(widget),
+    QPlainTextEdit(widget),
     m_highlighter(nullptr),
     m_syntaxStyle(nullptr),
     m_lineNumberArea(new QLineNumberArea(this)),
@@ -83,17 +83,18 @@ void QCodeEditor::performConnections()
 
     connect(
         this,
-        &QTextEdit::cursorPositionChanged,
+        &QPlainTextEdit::cursorPositionChanged,
         this,
         &QCodeEditor::updateExtraSelection
     );
 
     connect(
         this,
-        &QTextEdit::selectionChanged,
+        &QPlainTextEdit::selectionChanged,
         this,
         &QCodeEditor::onSelectionChanged
     );
+
 }
 
 void QCodeEditor::setHighlighter(QStyleSyntaxHighlighter* highlighter)
@@ -194,7 +195,7 @@ void QCodeEditor::onSelectionChanged()
 
 void QCodeEditor::resizeEvent(QResizeEvent* e)
 {
-    QTextEdit::resizeEvent(e);
+    QPlainTextEdit::resizeEvent(e);
 
     updateLineGeometry();
 }
@@ -264,10 +265,9 @@ void QCodeEditor::highlightParenthesis(QList<QTextEdit::ExtraSelection>& extraSe
     for (auto& pair : parentheses)
     {
         int direction;
-
         QChar counterSymbol;
         QChar activeSymbol;
-        auto position = textCursor().position();
+        int position = textCursor().position();
 
         if (pair.first == currentSymbol)
         {
@@ -287,69 +287,52 @@ void QCodeEditor::highlightParenthesis(QList<QTextEdit::ExtraSelection>& extraSe
             continue;
         }
 
-        auto counter = 1;
+        int counter = 1;
 
-        while (counter != 0 &&
-               position > 0 &&
-               position < (document()->characterCount() - 1))
+        // Safe bounds for QPlainTextEdit
+        const int lastPos = document()->characterCount() - 1;
+        while (counter != 0 && position > 0 && position < lastPos)
         {
-            // Moving position
             position += direction;
 
-            auto character = document()->characterAt(position);
-            // Checking symbol under position
+            QChar character = document()->characterAt(position);
+
             if (character == activeSymbol)
-            {
                 ++counter;
-            }
             else if (character == counterSymbol)
-            {
                 --counter;
-            }
         }
 
-        auto format = m_syntaxStyle->getFormat("Parentheses");
-
-        // Found
+        // If found
         if (counter == 0)
         {
-            ExtraSelection selection{};
+            QTextCharFormat format = m_syntaxStyle->getFormat("Parentheses");
+            format.setForeground(QBrush());
 
-            auto directionEnum =
-                 direction < 0 ?
-                 QTextCursor::MoveOperation::Left
-                 :
-                 QTextCursor::MoveOperation::Right;
+            auto makeSelection = [&](int pos) -> QTextEdit::ExtraSelection {
+                QTextEdit::ExtraSelection sel;
+                sel.format = format;
 
-            selection.format = format;
-            selection.cursor = textCursor();
-            selection.cursor.clearSelection();
-            selection.cursor.movePosition(
-                directionEnum,
-                QTextCursor::MoveMode::MoveAnchor,
-                std::abs(textCursor().position() - position)
-            );
+                QTextCursor c = textCursor();
+                c.clearSelection();
 
-            selection.cursor.movePosition(
-                QTextCursor::MoveOperation::Right,
-                QTextCursor::MoveMode::KeepAnchor,
-                1
-            );
+                // Move to the symbol
+                if (pos < textCursor().position())
+                    c.setPosition(pos, QTextCursor::KeepAnchor);
+                else
+                    c.setPosition(pos, QTextCursor::MoveAnchor);
 
-            extraSelection.append(selection);
+                // Select one character
+                c.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+                sel.cursor = c;
+                return sel;
+            };
 
-            selection.cursor = textCursor();
-            selection.cursor.clearSelection();
-            selection.cursor.movePosition(
-                directionEnum,
-                QTextCursor::MoveMode::KeepAnchor,
-                1
-            );
-
-            extraSelection.append(selection);
+            extraSelection.append(makeSelection(textCursor().position()));
+            extraSelection.append(makeSelection(position));
         }
 
-        break;
+        break; // Only first matching pair
     }
 }
 
@@ -372,7 +355,7 @@ void QCodeEditor::highlightCurrentLine(QList<QTextEdit::ExtraSelection>& extraSe
 void QCodeEditor::paintEvent(QPaintEvent* e)
 {
     updateLineNumberArea(e->rect());
-    QTextEdit::paintEvent(e);
+    QPlainTextEdit::paintEvent(e);
 }
 
 int QCodeEditor::getFirstVisibleBlock()
@@ -550,7 +533,7 @@ void QCodeEditor::keyPressEvent(QKeyEvent* e) {
       return;
     }
 
-    QTextEdit::keyPressEvent(e);
+    QPlainTextEdit::keyPressEvent(e);
 
     if (m_autoIndentation && (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)) {
       if (m_replaceTab)
@@ -665,7 +648,7 @@ void QCodeEditor::focusInEvent(QFocusEvent *e)
         m_completer->setWidget(this);
     }
 
-    QTextEdit::focusInEvent(e);
+    QPlainTextEdit::focusInEvent(e);
 }
 
 void QCodeEditor::insertCompletion(QString s)

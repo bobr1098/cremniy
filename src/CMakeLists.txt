@@ -44,8 +44,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/filetab.h
         widgets/filetreeview.cpp
         widgets/filetreeview.h
-        widgets/tooltab.cpp
-        widgets/tooltab.h
+        widgets/tooltabwidget.cpp
+        widgets/tooltabwidget.h
 
         utils/iconprovider.cpp
         utils/iconprovider.h

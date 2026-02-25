@@ -1,6 +1,5 @@
 #include "filetab.h"
-#include "QCodeEditor.hpp"
-#include "tooltab.h"
+#include "tooltabwidget.h"
 #include <qdir.h>
 #include <qevent.h>
 
@@ -17,17 +16,14 @@ void FileTab::saveFile(){
     if (!tooltabInner) return;
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) return;
-    QCodeEditor* ce = tooltabInner->get_codeEditor();
-    QString plainText = ce->toPlainText();
-    QByteArray data =  plainText.toUtf8();
-    file.write(data);
+    tooltabInner->m_syncfiledata->syncBuffer();
+    QByteArray* data = tooltabInner->m_syncfiledata->getBuffer();
+    file.write(*data);
     file.close();
-    tooltabInner->get_codeEditor()->document()->setModified(false);
     parrentTabWidget->setTabText(parrentTabWidget->currentIndex(), QFileInfo(filePath).fileName());
 }
 
 void FileTab::fileModifyEvent(bool modified){
-    qDebug() << "mod";
-    file_is_modify = true;
+    ToolTab* tooltabInner = this->findChild<ToolTab*>("toolTabWidget");
     parrentTabWidget->setTabText(parrentTabWidget->currentIndex(), QFileInfo(filePath).fileName()+"*");
 }

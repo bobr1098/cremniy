@@ -1,6 +1,6 @@
 #include "welcomeform.h"
 #include "app/IDEWindow/idewindow.h"
-#include "widgets/tooltab.h"
+#include "widgets/tooltabwidget.h"
 #include "ui_welcomeform.h"
 #include <qboxlayout.h>
 #include <qdir.h>

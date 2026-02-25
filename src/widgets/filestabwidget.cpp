@@ -1,11 +1,10 @@
 #include "filestabwidget.h"
 #include "QCodeEditor.hpp"
 #include "filetab.h"
-#include "tooltab.h"
+#include "tooltabwidget.h"
 #include <qboxlayout.h>
 
 FilesTabWidget::FilesTabWidget(QWidget *parent) {
-    qDebug() << "FileTab!";
     connect(this, &QTabWidget::currentChanged, this, &FilesTabWidget::tabSelect);
 }
 
@@ -17,7 +16,6 @@ void FilesTabWidget::saveCurrentFile(){
 void FilesTabWidget::tabSelect(int index){
     FileTab *tab = qobject_cast<FileTab*>(widget(index));
     if (!tab) return;
-    qDebug() << "File:" << tab->filePath;
 }
 
 // Create new tab and open file if he is not open already
