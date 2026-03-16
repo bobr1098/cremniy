@@ -17,6 +17,7 @@ ToolTabWidget::ToolTabWidget(QWidget *parent, QString path)
     // Tabs
     m_codeEditorTab = new CodeEditorTab(this, path);
     m_hexViewTab = new HexViewTab(this, path);
+    m_hexViewTab->setObjectName("hexViewTab");
     m_disassemblerTab = new DisassemblerTab(this, path);
 
     // Tab Icons

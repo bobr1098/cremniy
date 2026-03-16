@@ -9,6 +9,7 @@ QWidget {
 QHexView {
     background-color: #1f1f1f;
     font-size: 16px;
+    border: none;
 }
 
 /* Кнопки */
@@ -139,6 +140,52 @@ QTabWidget::pane {
 #toolTabWidget QTabBar::tab:hover:!selected  {
     background-color: #333333;
 }
+
+
+/* Вкладки типов парсинга в HEX */
+
+QListWidget#hexTabsList {
+    background: transparent;
+    border: none;
+    min-width: 120px;
+    max-width: 200px;
+    font-size: 12px;
+}
+
+QListWidget#hexTabsList::item {
+    background: #262626;
+    border-radius: 4px;
+    padding: 6px;
+    margin: 4px;
+    outline: none;
+}
+
+QListWidget#hexTabsList::item:hover {
+    background: #3a3a3a;
+}
+
+QListWidget#hexTabsList::item:selected {
+    background: #262626;
+    background: qlineargradient(
+        x1:1, y1:0, x2:0, y2:0,
+        stop:0 #262626,
+        stop:0.98 #262626,
+        stop:0.99 #2626d5,
+        stop:1 #2626d5
+    );
+    color: white;
+    outline: none;
+}
+
+QListWidget#hexTabsList::item:focus {
+    outline: none;
+}
+
+
+#hexViewTab QWidget {
+    background: #1f1f1f;
+}
+
 
 QTreeView::item:selected {
     background-color: #262626;
