@@ -25,14 +25,14 @@ bool QSyntaxStyle::load(QString fl)
 
         if(token == QXmlStreamReader::StartElement)
         {
-            if (reader.name() == "style-scheme")
+            if (reader.name() == u"style-scheme")
             {
                 if (reader.attributes().hasAttribute("name"))
                 {
                     m_name = reader.attributes().value("name").toString();
                 }
             }
-            else if (reader.name() == "style")
+            else if (reader.name() == u"style")
             {
                 auto attributes = reader.attributes();
 
@@ -51,13 +51,13 @@ bool QSyntaxStyle::load(QString fl)
                 }
 
                 if (attributes.hasAttribute("bold") &&
-                    attributes.value("bold") == "true")
+                    attributes.value("bold") == u"true")
                 {
                     format.setFontWeight(QFont::Weight::Bold);
                 }
 
                 if (attributes.hasAttribute("italic") &&
-                    attributes.value("italic") == "true")
+                    attributes.value("italic") == u"true")
                 {
                     format.setFontItalic(true);
                 }
@@ -68,31 +68,31 @@ bool QSyntaxStyle::load(QString fl)
 
                     auto s = QTextCharFormat::UnderlineStyle::NoUnderline;
 
-                    if (underline == "SingleUnderline")
+                    if (underline == u"SingleUnderline")
                     {
                         s = QTextCharFormat::UnderlineStyle::SingleUnderline;
                     }
-                    else if (underline == "DashUnderline")
+                    else if (underline == u"DashUnderline")
                     {
                         s = QTextCharFormat::UnderlineStyle::DashUnderline;
                     }
-                    else if (underline == "DotLine")
+                    else if (underline == u"DotLine")
                     {
                         s = QTextCharFormat::UnderlineStyle::DotLine;
                     }
-                    else if (underline == "DashDotLine")
+                    else if (underline == u"DashDotLine")
                     {
                         s = QTextCharFormat::DashDotLine;
                     }
-                    else if (underline == "DashDotDotLine")
+                    else if (underline == u"DashDotDotLine")
                     {
                         s = QTextCharFormat::DashDotDotLine;
                     }
-                    else if (underline == "WaveUnderline")
+                    else if (underline == u"WaveUnderline")
                     {
                         s = QTextCharFormat::WaveUnderline;
                     }
-                    else if (underline == "SpellCheckUnderline")
+                    else if (underline == u"SpellCheckUnderline")
                     {
                         s = QTextCharFormat::SpellCheckUnderline;
                     }
