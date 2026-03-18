@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="src/resources/icons/icon.png" width="180" alt="Cremniy logo">
+<img src="src/resources/icons/icon.png" width="250" alt="Cremniy logo">
 
-# Cremniy
-
-**A development environment for low-level programming** —  
-combining binary analysis, memory tools, and system code in one place.
+<br>
+<h3>Cremniy</h3>
+<h6>A development environment for low-level programming that combines all low-level tools into a single application</h6>
 
 [![License](https://img.shields.io/github/license/igmunv/cremniy?color=orange&style=flat-square)](LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Community](https://img.shields.io/badge/Community-Telegram-blue?logo=telegram&style=flat-square)](https://t.me/cremniy_com)
+<br>
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue?style=flat-square&logo=cplusplus)](https://en.cppreference.com/w/cpp/17)
 [![Qt 6](https://img.shields.io/badge/Qt-6.x-41CD52?style=flat-square&logo=qt)](https://www.qt.io/)
 
