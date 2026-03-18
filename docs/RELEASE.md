@@ -39,7 +39,8 @@
 
 После сборки будут доступны следующие файлы:
 
-- `cremniy-linux.tar.gz` - сборка для Linux
+- `cremniy-linux.tar.gz` - сборка для Linux (tar.gz архив)
+- `cremniy-linux.AppImage` - сборка для Linux (AppImage, запускается на любом дистрибутиве)
 - `cremniy-windows.zip` - сборка для Windows (включает все необходимые DLL)
 - `cremniy-macos.tar.gz` - сборка для macOS
 
