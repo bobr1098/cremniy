@@ -25,7 +25,6 @@ CodeEditorTab::CodeEditorTab(QWidget *parent)
     // - - Create "Code Editor" Page - -
 
     m_codeEditorWidget = new QCodeEditor(this);
-    m_codeEditorWidget->setTabReplace(false);
 
     QTextOption opt = m_codeEditorWidget->document()->defaultTextOption();
     opt.setTabStopDistance(20);
@@ -91,7 +90,8 @@ CodeEditorTab::CodeEditorTab(QWidget *parent)
             this,
             [this](bool modified){
                 if (!m_codeEditorWidget->m_ignoreModification)
-                    emit modifyData(true);
+                    setModifyIndicator(true);
+                    emit modifyData();
             });
 
     // ContentsChanged: if new hash == old hash: dataEqual, else: signal modifyData
@@ -102,11 +102,13 @@ CodeEditorTab::CodeEditorTab(QWidget *parent)
                 QByteArray data = m_codeEditorWidget->getBData();
                 uint newDataHash = qHash(data, 0);
                 if (m_dataHash == newDataHash) {
+                    setModifyIndicator(false);
                     emit dataEqual();
                 }
                 else{
                     if (!m_codeEditorWidget->m_ignoreModification)
-                        emit modifyData(true);
+                        setModifyIndicator(true);
+                        emit modifyData();
                 }
             });
 
@@ -141,6 +143,8 @@ void CodeEditorTab::setTabData(){
         forceSetData = false;
     }
 
+    setModifyIndicator(false);
+    emit dataEqual();
 }
 
 void CodeEditorTab::saveTabData() {
@@ -155,6 +159,7 @@ void CodeEditorTab::saveTabData() {
 
     m_codeEditorWidget->document()->setModified(false);
 
+    setModifyIndicator(false);
     emit dataEqual();
     emit refreshDataAllTabsSignal();
 }

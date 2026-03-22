@@ -1,10 +1,10 @@
 #ifndef HEXVIEWTAB_H
 #define HEXVIEWTAB_H
 
-#include "QHexView/qhexview.h"
 #include "core/ToolTab.h"
 #include <QWidget>
 #include <qfileinfo.h>
+#include <qstackedwidget.h>
 
 class HexViewTab : public ToolTab
 {
@@ -12,15 +12,7 @@ class HexViewTab : public ToolTab
 
 private:
 
-    /**
-     * @brief Виджет HexView
-    */
-    QHexView* m_hexViewWidget;
-
-    /**
-     * @brief Создаёт страницу для вкладки формата
-    */
-    QWidget* createPage();
+    QStackedWidget* pageView;
 
 public:
     explicit HexViewTab(QWidget *parent = nullptr);
@@ -34,6 +26,8 @@ public slots:
     void setFile(QString filepath) override;
     void setTabData() override;
     void saveTabData() override;
+
+    void pageModifyDataSlot();
 
 };
 

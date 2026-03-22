@@ -8,6 +8,15 @@
 class ToolTab : public QWidget {
     Q_OBJECT
 
+
+private:
+    /**
+     * @brief Флаг означающий изменения в данных
+     *
+     * Если true - данные изменены, false - данные равны данным в файле
+    */
+    bool m_modifyIndicator = false;
+
 protected:
 
     /**
@@ -20,7 +29,14 @@ protected:
     /**
      * @brief Контекст текущего файла
     */
-    FileContext* m_fileContext;
+    FileContext* m_fileContext = nullptr;
+
+    /**
+     * @brief Устанавливает значение для индикатора изменений
+    */
+    void setModifyIndicator(bool value) {
+        m_modifyIndicator = value;
+    };
 
 public:
     explicit ToolTab(QWidget* parent = nullptr) : QWidget(parent) {}
@@ -34,6 +50,13 @@ public:
      * @brief Получить лого инструмента для вкладки
     */
     virtual QIcon toolIcon() const = 0;
+
+    /**
+     * @brief Получить значение индикатора изменений
+    */
+    bool getModifyIndicator(){
+        return m_modifyIndicator;
+    }
 
 public slots:
 
@@ -67,12 +90,12 @@ signals:
      *
      * Эмиттируется, каждый рах когда происходит изменение данных и они не равны изначальным данным
     */
-    void modifyData(bool modified);
+    void modifyData();
 
     /**
      * @brief Изначальные данные не отличаются от текущих
      *
-     * Эмиттируется, каждый рах когда происходит изменение данных и они равны изначальным данным
+     * Эмиттируется, каждый раз когда происходит изменение данных и они равны изначальным данным
      * Также эмиттируется после вызова функции setTabData, чтобы убрать звезду
     */
     void dataEqual();

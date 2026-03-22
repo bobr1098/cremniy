@@ -28,7 +28,7 @@ public slots:
     void refreshDataAllTabs();
 
     void removeStar();
-    void setupStar(bool modified);
+    void setupStar();
 
 signals:
     void removeStarSignal();

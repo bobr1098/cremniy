@@ -64,19 +64,31 @@ void ToolTabWidget::removeStar(){
     if (index < 0) return;
 
     QString text = tabText(index);
-    text.replace("*", "");
+    if (text.endsWith('*')) text.chop(1);
     setTabText(index, text);
 
-    // check other tabs
-    // if (!tabText(this->indexOf(m_codeEditorTab)).contains("*") &&
-    //     !tabText(this->indexOf(m_hexViewTab)).contains("*") &&
-    //     !tabText(this->indexOf(m_disassemblerTab)).contains("*") ){
-    //     emit removeStarSignal();
-    // }
+    int toolCount_WithoutModIndicator = 0;
+    for (int tabIndex = 0; tabIndex < this->count(); tabIndex++){
+        if (tabIndex != this->currentIndex()){
+            ToolTab* tab = dynamic_cast<ToolTab*>(this->widget(tabIndex));
+            qDebug() << "ToolTabWidget: removeStar(): " << tab->toolName();
+            if (!tab->getModifyIndicator()) {
+                qDebug() << "ToolTabWidget: removeStar(): toolCount_WithoutModIndicator++";
+                toolCount_WithoutModIndicator++;
+            }
+        }
+    }
+
+    qDebug() << "ToolTabWidget: removeStar(): " << toolCount_WithoutModIndicator << " : " << this->count();
+
+    if (toolCount_WithoutModIndicator == (this->count()-1)) {
+        emit removeStarSignal();
+        qDebug() << "ToolTabWidget: removeStar(): removeStarSignal";
+    }
 
 }
 
-void ToolTabWidget::setupStar(bool modified){
+void ToolTabWidget::setupStar(){
 
     qDebug() << "ToolTabWidget: setupStar()";
 

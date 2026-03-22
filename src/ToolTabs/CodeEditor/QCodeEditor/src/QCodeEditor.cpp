@@ -103,11 +103,21 @@ void QCodeEditor::initDocumentLayoutHandlers()
 
 void QCodeEditor::initFont()
 {
-    auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     fnt.setFixedPitch(true);
     fnt.setPointSize(12);
 
     setFont(fnt);
+
+    QFontMetrics fm(fnt);
+    double tabWidth = fm.horizontalAdvance(' ') * 4; // 4 пробела
+
+    QTextOption opt = document()->defaultTextOption();
+    opt.setTabStopDistance(tabWidth);
+    document()->setDefaultTextOption(opt);
+
+    document()->markContentsDirty(0, document()->characterCount());
+    viewport()->update();
 }
 
 void QCodeEditor::performConnections()

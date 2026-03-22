@@ -4,6 +4,7 @@
 #include "QStyleSyntaxHighlighter.hpp"
 #include <QTextEdit> // Required for inheritance
 #include <qplaintextedit.h>
+#include <qtimer.h>
 #include <toolwidget.hpp>
 #include <QScrollBar>
 
@@ -41,6 +42,9 @@ public:
         QString text = QString::fromUtf8(data);
         setPlainText(text);
         document()->setModified(false);
+        QTimer::singleShot(0, this, [this]() {
+            initFont();
+        });
 
         m_ignoreModification = false;
     }
