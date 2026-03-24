@@ -18,9 +18,18 @@ static bool registered = [](){
     return true;
 }();
 
+namespace {
+const QByteArray kUtf8Bom("\xEF\xBB\xBF", 3);
+}
+
 CodeEditorTab::CodeEditorTab(FileDataBuffer* buffer, QWidget *parent)
     : ToolTab{buffer, parent}
 {
+    m_selectionSyncTimer = new QTimer(this);
+    m_selectionSyncTimer->setSingleShot(true);
+    connect(m_selectionSyncTimer, &QTimer::timeout, this, [this]() {
+        applyBufferedSelection();
+    });
 
     // - - Create "Code Editor" Page - -
 
@@ -84,25 +93,40 @@ CodeEditorTab::CodeEditorTab(FileDataBuffer* buffer, QWidget *parent)
         this->setTabData();
     });
 
-    // ContentsChanged: if new hash == old hash: dataEqual, else: signal modifyData
+    // ContentsChanged: синхронизируем рабочую копию буфера и dirty-state
     connect(m_codeEditorWidget->document(),
             &QTextDocument::contentsChanged,
             this,
             [this](){
-                // Проверяем только если документ действительно изменен
-                if (!m_codeEditorWidget->document()->isModified()) return;
-                
-                QByteArray data = m_codeEditorWidget->getBData();
-                uint newDataHash = qHash(data, 0);
-                if (m_dataBuffer->originalHash() == newDataHash) {
-                    setModifyIndicator(false);
-                    emit dataEqual();
-                }
-                else{
-                    if (!m_codeEditorWidget->m_ignoreModification) {
+                if (m_codeEditorWidget->m_ignoreModification || m_syncingBufferData)
+                    return;
+
+                const QByteArray data = editorDataWithBom();
+                const QByteArray currentBufferData = m_dataBuffer->data();
+
+                if (data == currentBufferData) {
+                    m_codeEditorWidget->document()->setModified(m_dataBuffer->isModified());
+
+                    if (m_dataBuffer->isModified()) {
                         setModifyIndicator(true);
                         emit modifyData();
+                    } else {
+                        setModifyIndicator(false);
+                        emit dataEqual();
                     }
+                    return;
+                }
+
+                m_syncingBufferData = true;
+                m_dataBuffer->replaceData(data);
+                m_syncingBufferData = false;
+
+                if (m_dataBuffer->isModified()) {
+                    setModifyIndicator(true);
+                    emit modifyData();
+                } else {
+                    setModifyIndicator(false);
+                    emit dataEqual();
                 }
             });
 
@@ -155,70 +179,115 @@ void CodeEditorTab::setTabData(){
 
     qDebug() << "CodeEditorTab: setTabData";
 
-    QByteArray data = m_dataBuffer->data();
+    const QByteArray probeData = m_dataBuffer->read(0, 4096);
 
-    if (isBinary(data) && !forceSetData){
+    if (isBinary(probeData) && !forceSetData){
         m_codeEditorWidget->hide();
         m_overlayWidget->show();
     }
     else{
+        QByteArray data = m_dataBuffer->data();
+        m_hasUtf8Bom = data.startsWith(kUtf8Bom);
+        if (m_hasUtf8Bom)
+            data.remove(0, kUtf8Bom.size());
+
         m_codeEditorWidget->show();
         m_overlayWidget->hide();
+        m_syncingBufferData = true;
         m_codeEditorWidget->setBData(data);
+        m_syncingBufferData = false;
         forceSetData = false;
     }
 
-    setModifyIndicator(false);
-    emit dataEqual();
+    if (m_dataBuffer->isModified()) {
+        setModifyIndicator(true);
+        emit modifyData();
+    } else {
+        setModifyIndicator(false);
+        emit dataEqual();
+    }
+}
+
+void CodeEditorTab::onDataChanged()
+{
+    if (m_syncingBufferData)
+        return;
+
+    setTabData();
 }
 
 void CodeEditorTab::onSelectionChanged(qint64 pos, qint64 length)
 {
-    if (m_updatingSelection) return; // Предотвращаем рекурсию
-    
-    // Не обрабатываем, если выделение пришло от нас же
-    m_updatingSelection = true;
-    
-    // Преобразуем байтовую позицию в символьную позицию
-    QByteArray data = m_dataBuffer->data();
-    QString text = QString::fromUtf8(data);
-    
-    // Получаем символьную позицию из байтовой
-    QByteArray beforeSelection = data.left(pos);
-    QString beforeText = QString::fromUtf8(beforeSelection);
-    int charStart = beforeText.length();
-    
-    // Получаем длину выделения в символах
-    QByteArray selectedBytes = data.mid(pos, length);
-    QString selectedText = QString::fromUtf8(selectedBytes);
-    int charLength = selectedText.length();
-    
-    // Выделяем соответствующий текст в редакторе
-    QTextCursor cursor = m_codeEditorWidget->textCursor();
-    
-    cursor.setPosition(charStart);
-    cursor.setPosition(charStart + charLength, QTextCursor::KeepAnchor);
-    m_codeEditorWidget->setTextCursor(cursor);
-    
-    m_updatingSelection = false;
+    if (m_updatingSelection)
+        return;
+
+    m_pendingSelectionPos = pos;
+    m_pendingSelectionLength = length;
+    m_selectionSyncTimer->start(35);
 }
 
 void CodeEditorTab::saveTabData() {
     qDebug() << "CodeEditorTab: saveTabData";
 
-    QByteArray data = m_codeEditorWidget->getBData();
-    
-    if (!m_dataBuffer->isModified()) return;
+    if (!m_codeEditorWidget->m_ignoreModification && !m_syncingBufferData)
+        m_dataBuffer->replaceData(editorDataWithBom());
 
-    // Обновляем общий буфер
-    m_dataBuffer->setData(data);
+    if (!m_dataBuffer->isModified())
+        return;
 
-    // Сохраняем в файл
-    FileManager::saveFile(m_fileContext, &data);
+    if (!m_dataBuffer->saveToFile(m_fileContext->filePath()))
+        return;
 
     m_codeEditorWidget->document()->setModified(false);
 
     setModifyIndicator(false);
     emit dataEqual();
     emit refreshDataAllTabsSignal();
+}
+
+QByteArray CodeEditorTab::editorDataWithBom() const
+{
+    QByteArray data = m_codeEditorWidget->getBData();
+    if (m_hasUtf8Bom)
+        data.prepend(kUtf8Bom);
+    return data;
+}
+
+void CodeEditorTab::applyBufferedSelection()
+{
+    if (m_updatingSelection)
+        return;
+
+    m_updatingSelection = true;
+
+    QByteArray data = m_dataBuffer->data();
+    qint64 pos = m_pendingSelectionPos;
+    qint64 length = m_pendingSelectionLength;
+
+    if (m_hasUtf8Bom && data.startsWith(kUtf8Bom)) {
+        if (pos < kUtf8Bom.size()) {
+            length = qMax<qint64>(0, length - (kUtf8Bom.size() - pos));
+            pos = kUtf8Bom.size();
+        }
+        pos -= qMin<qint64>(pos, static_cast<qint64>(kUtf8Bom.size()));
+        data.remove(0, kUtf8Bom.size());
+    }
+
+    pos = qBound<qint64>(0, pos, data.size());
+    length = qBound<qint64>(0, length, data.size() - pos);
+
+    const QByteArray beforeSelection = data.left(pos);
+    const QString beforeText = QString::fromUtf8(beforeSelection);
+    const int charStart = beforeText.length();
+
+    const QByteArray selectedBytes = data.mid(pos, length);
+    const QString selectedText = QString::fromUtf8(selectedBytes);
+    const int charLength = selectedText.length();
+
+    QTextCursor cursor = m_codeEditorWidget->textCursor();
+    cursor.setPosition(charStart);
+    cursor.setPosition(charStart + charLength, QTextCursor::KeepAnchor);
+    m_codeEditorWidget->setTextCursor(cursor);
+
+    m_updatingSelection = false;
 }

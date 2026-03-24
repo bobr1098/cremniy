@@ -16,11 +16,7 @@ ToolTabWidget::ToolTabWidget(QWidget *parent, QString path)
     // Создаем общий буфер данных для всех вкладок
     m_sharedBuffer = new FileDataBuffer(this);
 
-    // Загружаем данные файла в буфер
-    FileContext* fileContext = new FileContext(path);
-    QByteArray fileData = FileManager::openFile(fileContext);
-    m_sharedBuffer->setData(fileData);
-    delete fileContext;
+    m_sharedBuffer->openFile(path);
 
     // Tools
 
@@ -32,7 +28,7 @@ ToolTabWidget::ToolTabWidget(QWidget *parent, QString path)
         qDebug() << "availableTab: " << tab->toolName();
 
         tab->setFile(path);
-        tab->setTabData();
+        tab->setProperty("tabDataLoaded", false);
 
         connect(tab, &ToolTab::refreshDataAllTabsSignal, this, &ToolTabWidget::refreshDataAllTabs);
         connect(tab, &ToolTab::modifyData, this, &ToolTabWidget::setupStar);
@@ -40,6 +36,28 @@ ToolTabWidget::ToolTabWidget(QWidget *parent, QString path)
 
         if (tab) this->addTab(tab, tab->toolIcon(), tab->toolName());
     }
+
+    if (this->count() > 0) {
+        ToolTab* tab = dynamic_cast<ToolTab*>(this->widget(0));
+        if (tab) {
+            tab->setTabData();
+            tab->setProperty("tabDataLoaded", true);
+        }
+    }
+
+    connect(this, &QTabWidget::currentChanged, this, [this](int index) {
+        if (index < 0)
+            return;
+
+        ToolTab* tab = dynamic_cast<ToolTab*>(this->widget(index));
+        if (!tab)
+            return;
+
+        if (!tab->property("tabDataLoaded").toBool()) {
+            tab->setTabData();
+            tab->setProperty("tabDataLoaded", true);
+        }
+    });
 
     // // - - Connects - -
 

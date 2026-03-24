@@ -53,6 +53,23 @@ BinaryTab::BinaryTab(FileDataBuffer* buffer, QWidget *parent)
 
             connect(fpage, &FormatPage::modifyData, this, &BinaryTab::pageModifyDataSlot);
             connect(fpage, &FormatPage::dataEqual, this, &ToolTab::dataEqual);
+            connect(fpage, &FormatPage::pageDataChanged,
+                    this, [this](const QByteArray& data) {
+                        if (m_syncingBufferData)
+                            return;
+
+                        m_syncingBufferData = true;
+                        m_dataBuffer->replaceData(data);
+                        m_syncingBufferData = false;
+
+                        if (m_dataBuffer->isModified()) {
+                            setModifyIndicator(true);
+                            emit modifyData();
+                        } else {
+                            setModifyIndicator(false);
+                            emit dataEqual();
+                        }
+                    });
             
             // Подключаем сигнал выделения от страницы к буферу
             connect(fpage, &FormatPage::selectionChanged, 
@@ -98,17 +115,32 @@ void BinaryTab::setTabData(){
     QByteArray data = m_dataBuffer->data();
     qDebug() << "HexViewTab: setTabData(): got data from buffer";
 
+    m_syncingBufferData = true;
     for (int pageIndex = 0; pageIndex < pageView->count(); pageIndex++){
         FormatPage* fpage = dynamic_cast<FormatPage*>(pageView->widget(pageIndex));
         qDebug() << "HexViewTab: setTabData(): start set page data for " << fpage->pageName();
         fpage->setPageData(data);
         qDebug() << "HexViewTab: setTabData(): success set page data for " << fpage->pageName();
     }
+    m_syncingBufferData = false;
 
-    setModifyIndicator(false);
-    emit dataEqual();
+    if (m_dataBuffer->isModified()) {
+        setModifyIndicator(true);
+        emit modifyData();
+    } else {
+        setModifyIndicator(false);
+        emit dataEqual();
+    }
     qDebug() << "HexViewTab: setTabData(): success";
 };
+
+void BinaryTab::onDataChanged()
+{
+    if (m_syncingBufferData)
+        return;
+
+    setTabData();
+}
 
 void BinaryTab::onSelectionChanged(qint64 pos, qint64 length)
 {
@@ -131,15 +163,14 @@ void BinaryTab::saveTabData() {
     qDebug() << "HexViewTab: saveTabData";
 
     FormatPage* fpage = dynamic_cast<FormatPage*>(pageView->currentWidget());
-    QByteArray data = fpage->getPageData();
-    
-    if (!m_dataBuffer->isModified()) return;
+    if (fpage && !m_syncingBufferData)
+        m_dataBuffer->replaceData(fpage->getPageData());
 
-    // Обновляем общий буфер
-    m_dataBuffer->setData(data);
+    if (!m_dataBuffer->isModified())
+        return;
 
-    // Сохраняем в файл
-    FileManager::saveFile(m_fileContext, &data);
+    if (!m_dataBuffer->saveToFile(m_fileContext->filePath()))
+        return;
     
     setModifyIndicator(false);
     emit dataEqual();

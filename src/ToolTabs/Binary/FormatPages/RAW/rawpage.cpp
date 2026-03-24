@@ -29,8 +29,10 @@ RAWPage::RAWPage(QWidget *parent)
                     emit dataEqual();
                 }
                 else{
-                    if (!m_hexViewWidget->m_ignoreModification)
+                    if (!m_hexViewWidget->m_ignoreModification) {
+                        emit pageDataChanged(data);
                         emit modifyData();
+                    }
                 }
             });
 

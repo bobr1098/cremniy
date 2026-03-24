@@ -27,6 +27,7 @@ signals:
     void modifyData();
     void dataEqual();
     void selectionChanged(qint64 pos, qint64 length);
+    void pageDataChanged(const QByteArray& data);
 
 
 };

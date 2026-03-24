@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QByteArray>
-#include <QMutex>
+#include <QFile>
 #include <QHash>
+#include <QList>
+#include <QMap>
+#include <QMutex>
 
 class FileDataBuffer : public QObject
 {
@@ -13,11 +16,20 @@ class FileDataBuffer : public QObject
 public:
     explicit FileDataBuffer(QObject* parent = nullptr);
 
+    bool openFile(const QString& filePath);
+    QString filePath() const;
+
     // Получить все данные (потокобезопасно)
     QByteArray data() const;
 
-    // Установить все данные (например при загрузке файла)
-    void setData(const QByteArray& data);
+    // Прочитать диапазон без материализации всего файла
+    QByteArray read(qint64 pos, qint64 length) const;
+
+    // Загрузить данные как исходное состояние документа
+    void loadData(const QByteArray& data);
+
+    // Полностью заменить рабочую копию данных, не сбрасывая dirty-state
+    void replaceData(const QByteArray& data);
 
     // Изменить один байт
     void setByte(qint64 pos, char byte);
@@ -47,7 +59,13 @@ public:
     bool isModified() const;
 
     // Сбросить флаг изменений (после сохранения)
-    void resetModified();
+    void markSaved();
+
+    bool saveToFile(const QString& filePath = QString());
+
+    bool isFileBacked() const;
+    bool isMaterialized() const;
+    bool isLargeFile() const;
 
 signals:
     // Изменился один байт
@@ -63,7 +81,32 @@ signals:
     void selectionChanged(qint64 pos, qint64 length);
 
 private:
+    static constexpr qint64 kDefaultChunkSize = 64 * 1024;
+    static constexpr int kDefaultMaxCachedChunks = 64;
+    static constexpr qint64 kLargeFileThreshold = 16 * 1024 * 1024;
+
+    QByteArray readLocked(qint64 pos, qint64 length) const;
+    QByteArray materializeLocked() const;
+    QByteArray baseReadLocked(qint64 pos, qint64 length) const;
+    QByteArray chunkLocked(qint64 chunkIndex) const;
+    void touchChunkLocked(qint64 chunkIndex) const;
+    void trimChunkCacheLocked() const;
+    void promoteToMemoryModeLocked();
+    void resetOverlayLocked();
+    void closeFileLocked();
+    uint computeCurrentHashLocked() const;
+
     mutable QMutex m_mutex;
+    mutable QFile m_file;
+    QString m_filePath;
+    qint64 m_baseSize = 0;
+    qint64 m_chunkSize = kDefaultChunkSize;
+    int m_maxCachedChunks = kDefaultMaxCachedChunks;
+    bool m_fileBacked = false;
+    bool m_materialized = true;
+    mutable QHash<qint64, QByteArray> m_chunkCache;
+    mutable QList<qint64> m_chunkLru;
+    QMap<qint64, char> m_overrides;
     QByteArray m_data;
     uint m_originalHash = 0;
     qint64 m_selectionPos = -1;

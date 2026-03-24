@@ -43,6 +43,8 @@ public:
         QString bytes;
         QString mnemonic;
         QString operands;
+        qint64 fileOffset = -1;
+        qint64 size = 0;
 
         // Cached lowercase for fast search
         QString addrL;
@@ -59,11 +61,12 @@ public slots:
     // From Parrent Class: ToolTab
     void setFile(QString filepath) override;
     void setTabData() override;
-    void saveTabData() override {};
+    void saveTabData() override;
 
 protected slots:
     // Обработчик изменения выделения из буфера
     void onSelectionChanged(qint64 pos, qint64 length) override;
+    void onDataChanged() override;
 
 private slots:
 
@@ -131,6 +134,7 @@ private:
     QPlainTextEdit *m_logView        = nullptr;
 
     int m_currentSectionIndex = -1;
+    QTimer *m_refreshDebounce = nullptr;
 };
 
 #endif // DISASSEMBLERTAB_H
