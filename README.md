@@ -19,6 +19,10 @@ English • [Русский](README_ru.md)
 
 ---
 
+## Docs
+
+- [Hotkeys](docs/hotkey.md)
+
 ## What is Cremniy?
 
 **Cremniy** is an integrated environment for low-level development. Instead of juggling a hex editor here, a disassembler there, and a code editor somewhere else — you get them all in one consistent, focused application.
