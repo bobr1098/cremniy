@@ -15,7 +15,6 @@
 - [ ] [Баг: Неправильное отображение байтов в HEX-Editor на MacOS](https://github.com/Cremniy-Project/cremniy/issues/43)
 - [ ] [Баг: Не правильно работает синтаксис Makefile](https://github.com/Cremniy-Project/cremniy/issues/41)
 - [ ] [Баг: Отображение полоски в HEX-Editor на Windows](https://github.com/Cremniy-Project/cremniy/issues/33)
-- [ ] [Баг: Нажатие на Close Project вызывает Segmentation fault](https://github.com/Cremniy-Project/cremniy/issues/74)
 
 <br>
 
@@ -39,6 +38,7 @@
 - [x] [Терминал](https://github.com/Cremniy-Project/cremniy/issues/31)
 - [x] [Вкладки форматов в HEX-редакторе](https://github.com/Cremniy-Project/cremniy/issues/13)
 - [x] [Добавить поддержку языков](https://github.com/Cremniy-Project/cremniy/issues/4)
+- [x] [Баг: Нажатие на Close Project вызывает Segmentation fault](https://github.com/Cremniy-Project/cremniy/issues/74)
 
 ## 🔮 Будущие планы
 
