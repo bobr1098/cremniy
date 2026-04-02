@@ -1,3 +1,9 @@
+<div align="center">
+
+[English](ROADMAP.md) • Русский
+	
+</div>
+
 # 🚀 Дорожная карта
 
 ## 🎯 Цель проекта
