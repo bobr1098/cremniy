@@ -19,6 +19,9 @@
 
 ## 🛠 Ближайшие задачи
 
+> [!WARNING]
+> Сейчас ведётся разработка нового виджета редактора кода, поэтому изменения в текущую версию не принимаются. Если вы видите это сообщение, значит разработка ещё не завершена.
+
 ### 🐞 Баги
 
 - [ ] [Неправильное отображение байтов в HEX-Editor на MacOS](https://github.com/Cremniy-Project/cremniy/issues/43)
@@ -32,6 +35,7 @@
 - [ ] 🟡 [Использование иконок Breeze для файлов в QTreeView](https://github.com/Cremniy-Project/cremniy/issues/72)
 - [ ] 🟡 [Реализовать StatusBar](https://github.com/Cremniy-Project/cremniy/issues/73)
 - [ ] 🟡 [Отображение чисел в разных системах счисления при наведении](https://github.com/Cremniy-Project/cremniy/issues/28)
+- [ ] 🟡 [Добавить конвертер единиц хранения данных](https://github.com/munirov/cremniy/issues/104)
 - [ ] 🟡 [Справочник по скан-кодам клавиш](https://github.com/munirov/cremniy/issues/89)
 - [ ] 🟡 [Улучшить терминал](https://github.com/munirov/cremniy/issues/100)
 - [ ] 🟡 [Сборка и запуск проекта пользователя](https://github.com/Cremniy-Project/cremniy/issues/6)
